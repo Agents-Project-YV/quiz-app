@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiselect Quiz Component</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .question:last-child {
+            border-bottom: none;
+        }
+        
+        .question-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .options-container {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .option-label {
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-label:hover {
+            background-color: #fff5f5;
+            border-color: #ff6b6b;
+        }
+        
+        .option-label.selected {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+        
+        .option-label.incorrect {
+            background-color: #ffebee;
+            border-color: #f44336;
+        }
+        
+        .result-message {
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .correct {
+            color: #4caf50 !important;
+        }
+        
+        .incorrect {
+            color: #f44336 !important;
+        }
+        
+        button.check-btn {
+            padding: 15px 30px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button.check-btn:hover {
+            background-color: #1976d2;
+        }
+        
+        .next-section {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Question 1 -->
+        <div class="question" id="q1">
+            <h2 class="question-title">Question 1: What represents a boolean value in JavaScript?</h2>
+            <div class="options-container">
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="boolean values are true or false">
+                    Boolean values are true or false
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="false" value="numbers can represent booleans">
+                    Numbers can represent booleans
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="strings work as booleans">
+                    Strings work as booleans
+                </label>
+            </div>
+            <button class="check-btn" onclick="checkQuestion(1)">Submit Answer</button>
+            <div class="result-message"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question next-section" id="q2">
+            <h2 class="question-title">Question 2: Which of the following are valid CSS properties?</h2>
+            <div class="options-container">
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="color is a valid color property">
+                    "color" is a valid color property
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="display can be flex or block">
+                    "display" can be "flex" or "block"
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="false" value="width property is invalid">
+                    "width" property is invalid
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="margin can be 10px or 20%">
+                    "margin" can be "10px" or "20%"
+                </label>
+            </div>
+            <button class="check-btn" onclick="checkQuestion(2)">Submit Answer</button>
+            <div class="result-message"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question next-section" id="q3">
+            <h2 class="question-title">Question 3: What are the correct JavaScript data types?</h2>
+            <div class="options-container">
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="null is a valid data type">
+                    "null" is a valid data type
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="true" value="undefined can hold values">
+                    "undefined" can hold values
+                </label>
+                <label class="option-label">
+                    <input type="checkbox" data-correct="false" value="symbol type doesn't exist in JS">
+                    "symbol" type doesn't exist in JS
+                </label>
+            </div>
+            <button class="check-btn" onclick="checkQuestion(3)">Submit Answer</button>
+            <div class="result-message"></div>
+        </div>
+
+        <!-- Final Result -->
+        <div class="question next-section" id="final-result">
+            <h2 class="question-title">Quiz Results Summary</h2>
+            <p style="text-align: center; padding: 20px;">
+                Your total score is shown below. Each correct answer gives you points!
+            </p>
+            <div id="final-score" class="result-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Logic Function
+        function checkQuestion(questionNumber) {
+            const selectedInputs = document.querySelectorAll('input[data-correct="true"]');
+            const incorrectInputs = document.querySelectorAll('input[data-correct="false"]');
+            
+            let correctCount = 0;
+            let falseCount = 0;
+            let userSelections = new Set();
+            
+            // Count correct answers
+            selectedInputs.forEach(input => {
+                if (input.checked) {
+                    userSelections.add(input);
+                    input.parentElement.classList.add('correct');
+                    correctCount++;
+                } else {
+                    input.parentElement.classList.add('incorrect');
+                    falseCount++;
+                }
+            });
+
+            // Mark unselected options as incorrect (unless they're correct answers)
+            selectedInputs.forEach(input => {
+                if (!input.checked && input.parentElement.classList.contains('correct')) {
+                    input.parentElement.classList.remove('correct');
+                }
+            });
+
+            // Calculate final score
+            const totalCorrect = falseCount;
+            const finalScore = correctCount - falseCount;
+            
+            // Display result message
+            const resultMsg = document.getElementById(`q${questionNumber}`);
+            if (finalScore > 0) {
+                resultMsg.innerHTML = `🎉 Excellent! You scored <strong>${correctCount} correct</strong> and ${falseCount} incorrect - Total Score: <strong style="color: green; font-weight: bold;">${finalScore}</strong>`;
+            } else if (finalScore === 0) {
+                resultMsg.innerHTML = `🎯 Good effort! You got <strong>${correctCount} correct</strong> and ${falseCount} incorrect - Total Score: <strong style="color: red; font-weight: bold;">${finalScore}</strong>`;
+            } else if (finalScore < 0) {
+                resultMsg.innerHTML = `😅 Oh no! You got <strong>${correctCount} correct</strong> and ${falseCount} incorrect - Total Score: <strong style="color: red; font-weight: bold;">${finalScore}</strong>`;
+            }
+            
+            // Hide submit button
+            const checkBtn = resultMsg.parentElement.querySelector('button');
+            checkBtn.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiple Choice Quiz Component</title>
+<style>
+body { font-family: Arial; background: #f5f5f5; padding: 20px; }
+.container { max-width: 500px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px; }
+.question-section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+.question-section:last-of-type { border-bottom: none; }
+.question { color: #444; font-size: 16px; margin-bottom: 10px; }
+.answers-list { display: flex; flex-direction: column; gap: 8px; }
+.answer-item { padding: 10px 12px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+.answer-item:hover { border-color: #6b7c93; background: #f9f9f9; }
+.answer-item.selected { border-color: #6b7c93; background: #e8f4fd; }
+.answer-item.selected.correct { border-color: #4CAF50 !important; background: #f1f8e9 !important; }
+.answer-item.selected.incorrect { border-color: #f44336 !important; background: #ffcdd2 !important; }
+.btn-check { background: #6b7c93; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 15px; transition: 0.3s; }
+.btn-check:hover { background: #5a6b7e; }
+.alert-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; color: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; animation: fadeOut 5s forwards; font-size: 20px;}
+@keyframes fadeOut { 0% { opacity: 1; transform: translate(-50%, -60%); } 30% { opacity: 1; transform: translate(-50%, -50%); } 70% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, -80%); } }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Multiple Choice Quiz Component</h2>
+<div id="quiz"></div>
+<button onclick="checkAnswers()" class="btn-check">Submit Answers</button>
+</div>
+
+<script>
+const quizData = [
+  { q: "Which JS method selects multiple elements?", a: ["document.querySelectorAll()", false, false], c: true },
+  { q: "Select ES6+ features with arrow functions.", a: ["var", false], c: true },
+  { q: "What about JavaScript being multi-threaded?", a: [false, true, false], c: false }
+];
+
+function render() {
+const quiz = document.getElementById("quiz");
+quiz.innerHTML = quizData.map((item, i) => `
+<div class="question-section">
+<p class="question">${i+1}. ${item.q}</p>
+<div class="answers-list">
+${item.a.map((answer, aIndex) => `
+<label class="answer-item" data-correct="${item.c}">
+<input type="checkbox" name="q${i}" value="${aIndex}" onchange="showFeedback(this)">
+<span>${item.a[aIndex] ? answer : "Answer option</span>
+</label>
+`).join("")}
+</div>
+</div>`).join("");
+}
+
+function showFeedback(checkbox) {
+const section = document.querySelector(`[data-index="${checkbox.name}"]`);
+const answers = section.querySelectorAll(".answer-item");
+answers.forEach(answer => {
+  if (parseInt(answer.dataset.correct)) return;
+});
+document.getElementById("quiz").innerHTML = quizData.map((item, i) => `
+<div class="question-section" data-index="${i}">
+<p class="question">${i+1}. ${item.q}</p>
+<div class="answers-list">
+${item.a.map((answerText, aIndex) => {
+const isSelected = document.querySelector(`input[name="q${i}"][value="${aIndex}"]`).checked;
+return `
+<label class="answer-item" data-correct="${item.c}" data-is-checked="${isSelected}">
+<span>${answerText}</span>
+</label>
+`.trim()
+}).join("")}
+</div>
+</div>`).join("");
+
+const feedbackBox = document.createElement("div");
+feedbackBox.className = "alert-box";
+feedbackBox.innerHTML = `<h3 style="text-align: center;">${document.getElementById('q1').checked ? "CORRECT" : "INCORRECT"} Feedback shown!</h3>`;
+document.body.appendChild(feedbackBox);
+
+setTimeout(() => { feedbackBox.remove() }, 2000);
+}
+
+function checkAnswers() {
+const q = document.querySelectorAll(".answer-section");
+let score = 0;
+q.forEach((section, i) => {
+  const inputs = section.querySelectorAll("input[type='checkbox']");
+  const selected = [...inputs].filter(cb => cb.checked).map(cb => parseInt(cb.value));
+  const allCorrect = quizData[i].a.every((ansText, aIndex) => selected.includes(aIndex));
+  if (allCorrect) score++;
+});
+
+const alertBox = document.createElement("div");
+alertBox.className = "alert-box";
+alertBox.innerHTML = `<h3 style="text-align: center;">Final Score: ${score} / ${quizData.length}</h3>`;
+document.body.appendChild(alertBox);
+setTimeout(() => { alertBox.remove() }, 2000);
+render();
+}
+
+render();
+</script>
+</body>
+</html>
